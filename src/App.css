@@ -208,8 +208,9 @@ body {
 
 .webcam-ring {
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  max-width: 400px;
+  height: 50%;
   border: 5px solid #f44336;
   border-radius: 50%;
   overflow: hidden;

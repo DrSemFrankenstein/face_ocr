@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
-import { IconButton } from "@material-ui/core";
+import { Button, IconButton } from "@material-ui/core";
 import { FlipCameraIos } from "@material-ui/icons";
 
 const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
@@ -97,21 +97,22 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
           screenshotFormat="image/jpeg"
           videoConstraints={{ facingMode: facingMode }}
           style={{
-            width: "98%",
+            width: "100%",
             border: "solid 6px",
             //   borderColor: quality < 0.6 ? "green" : "red",
             // filter: "grayscale(100%)",
           }}
         />
       </div>
-      <IconButton
-        color="secondary"
-        aria-label="add to shopping cart"
+<br/>
+      <Button
+        variant="contained"
+        startIcon={<FlipCameraIos />}
         onClick={handleFacingModeChange}
-        style={{ marginLeft: "auto" }}
+        color="secondary"
       >
-        <FlipCameraIos />
-      </IconButton>
+        {facingMode === "user" ? "FRONT" : "REAR"}
+      </Button>
     </>
   );
 };
