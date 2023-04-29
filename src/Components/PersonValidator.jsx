@@ -29,7 +29,7 @@ const PersonValidator = () => {
   const [inFocus, setInFocus] = useState(false);
   const [score, setScore] = useState(0);
   const [isFaceValidation, setIsFaceValidation] = useState(false);
-  const [facingMode, setFacingMode] = useState("user");
+  const [facingMode, setFacingMode] = useState("environment");
   let mediaStream = null;
 
   useEffect(() => {
@@ -227,7 +227,7 @@ const PersonValidator = () => {
           flipOnHover={false}
           flipOnClick={false}
           flipDirection={"horizontal"}
-          style={{ height: "600px" }}
+          style={{ height: "800px" }}
           ref={flippyRef}
         >
           <FrontSide>
@@ -241,16 +241,19 @@ const PersonValidator = () => {
                   height: "100%",
                 }}
               >
+                <Typography variant="h4" gutterBottom>
+                  Scan Document
+                </Typography>
                 <div
                   className={`ocrloader ${inFocus ? "" : "error"}`}
                   style={{
-                    width: "90%",
-                    height: window.innerWidth < 600 ? "40%" : "60%", 
-                    marginBottom:window.innerWidth < 600 ? "10%" : "5%"
+                    width: window.innerWidth < 600 ? "90%" : "80%",
+                    height: window.innerWidth < 600 ? "28%" : "60%",
+                    marginBottom: window.innerWidth < 600 ? "" : "4%",
                   }}
                 >
                   <em></em>
-                  <p style={{ left: "25%" }}>Focus on the Document</p>
+                  {/* <p style={{ left: "25%" }}>Focus on the Document</p> */}
                 </div>
                 <Webcam
                   audio={false}
@@ -264,14 +267,15 @@ const PersonValidator = () => {
                     // transform: "scaleX(-1)",
                   }}
                 />
-                <IconButton
-                  color="secondary"
-                  aria-label="add to shopping cart"
+                <br />
+                <Button
+                  variant="contained"
+                  startIcon={<FlipCameraIos />}
                   onClick={handleFacingModeChange}
-                  style={{marginLeft:"auto"}}
+                  color="secondary"
                 >
-                  <FlipCameraIos />
-                </IconButton>
+                  {facingMode === "user" ? "FRONT" : "REAR"}
+                </Button>
               </div>
             ) : (
               <div
@@ -332,20 +336,37 @@ const PersonValidator = () => {
                   </Button>
                 </>
               ) : (
-                <div className="ocrloader"
-                style={{
-                  width: "90%",
-                  height: window.innerWidth < 600 ? "40%" : "60%",                   
-                }}>
-                  <p>Scanning</p>
-                  <em></em>
-                  <span>
-                    <img
-                      src={ocrData.screenshot}
-                      alt="Screenshot"
-                      style={{ width: "auto", maxHeight: "300px" }}
-                    />
-                  </span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                  }}
+                >
+                  <div
+                    className="ocrloader"
+                    style={{
+                      width: window.innerWidth < 600 ? "80%" : "80%",
+                      height: window.innerWidth < 600 ? "25%" : "60%",
+                      // marginBottom: window.innerWidth < 600 ? "15%" : "5%",
+                    }}
+                  >
+                    <p>Scanning</p>
+                    <em></em>
+                    <span>
+                      <img
+                        src={ocrData.screenshot}
+                        alt="Screenshot"
+                        // style={{ width: "auto", maxHeight: "300px" }}
+                        style={{
+                          width: "100%",
+                          maxHeight: "480px",
+                        }}
+                      />
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
