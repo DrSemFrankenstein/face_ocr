@@ -72,36 +72,36 @@ export default function FirstStep({ img }) {
     return { detections, faceImages, descriptors };
   };
 
-  const handleVideoOnPlay = () => {
+  const handleVideoOnPlay = async () => {
     let detect = false;
-    const id = setInterval(async () => {
-      const detections = await detectFaces(img);
-      if (detections.detections.length > 0) {
-        if (detections.detections[0].score > 0.96) {
-          setFaceDetections(detections);
-          objectStore.setObject({
-            ...objectStore.getObject(),
-            detectedDescriptors: detections.descriptors,
-          });
-          if (detections.faceImages.length > 0 && img && !detect) {
-            try {
-              detect = true;
-              setOcrData((prevState) => ({
-                ...prevState,
-                croppedFacePhoto: detections.faceImages[0].toDataURL(),
-              }));
-              extractOcrText(img);
-              console.log(faceDetections);
-              clearInterval(intervalId);
-            } catch (error) {
-              console.log("Error in handleVideoOnPlay function: ", error);
-              clearInterval(intervalId);
-            }
+    // const id = setInterval(async () => {
+    const detections = await detectFaces(img);
+    if (detections.detections.length > 0) {
+      if (detections.detections[0].score > 0.96) {
+        setFaceDetections(detections);
+        objectStore.setObject({
+          ...objectStore.getObject(),
+          detectedDescriptors: detections.descriptors,
+        });
+        if (detections.faceImages.length > 0 && img && !detect) {
+          try {
+            detect = true;
+            setOcrData((prevState) => ({
+              ...prevState,
+              croppedFacePhoto: detections.faceImages[0].toDataURL(),
+            }));
+            extractOcrText(img);
+            console.log(faceDetections);
+            // clearInterval(intervalId);
+          } catch (error) {
+            console.log("Error in handleVideoOnPlay function: ", error);
+            // clearInterval(intervalId);
           }
         }
       }
-    }, 1000);
-    setIntervalId(id);
+    }
+    // }, 1000);
+    // setIntervalId(id);
   };
 
   return (
