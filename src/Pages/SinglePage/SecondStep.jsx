@@ -6,7 +6,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FaceValidation from "../../Components/FaceValidation";
 
-export default function SecondStep() {
+export default function SecondStep({cropedFaceDescriptor}) {
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -25,7 +25,7 @@ export default function SecondStep() {
         }}
       >
         <Grid item xs={12} md={12}>
-          <FaceValidation />
+          <FaceValidation cropedFaceDescriptor={cropedFaceDescriptor}/>
         </Grid>
       </Grid>
     </React.Fragment>

@@ -6,6 +6,9 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Tesseract from "tesseract.js";
 import * as faceapi from "face-api.js";
+import objectStore from "../../Store/objectStore";
+import LinearWithValueLabel from "../../Components/LinearProgressWithLabel";
+import { createWorker } from "tesseract.js";
 
 export default function FirstStep({ img }) {
   const [ocrData, setOcrData] = useState({
@@ -25,27 +28,19 @@ export default function FirstStep({ img }) {
   const extractOcrText = async (screenshot) => {
     if (screenshot !== null) {
       console.log("Start extracting OCR Text");
-      const config = {
-        tessedit_char_whitelist:
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", //allowed characters
-      };
-      let tries = 0;
-      let highestConfidence = 0;
-      let extractData = "";
-      while (tries < 2 && highestConfidence < 59) {
-        const {
-          data: { text, confidence },
-        } = await Tesseract.recognize(screenshot, "eng", config);
-        console.log(`Try ${tries + 1}: confidence: ${confidence}`);
-        if (confidence > highestConfidence) {
-          highestConfidence = confidence;
-          extractData = text;
-          updateExtractedData(extractData, highestConfidence);
-        } else {
-          updateExtractedData(extractData, highestConfidence);
-        }
-        tries++;
-      }
+      // const config = {
+      //   tessedit_char_whitelist:
+      //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", //allowed characters
+      // };
+      // const {
+      //   data: { text, confidence },
+      // } = await Tesseract.recognize(screenshot, "eng", config);
+      // updateExtractedData(text, confidence);
+
+      const {
+        data: { text, confidence },
+      } = await Tesseract.recognize(screenshot, "eng");
+      updateExtractedData(text, confidence);
     }
   };
 
@@ -84,6 +79,10 @@ export default function FirstStep({ img }) {
       if (detections.detections.length > 0) {
         if (detections.detections[0].score > 0.96) {
           setFaceDetections(detections);
+          objectStore.setObject({
+            ...objectStore.getObject(),
+            detectedDescriptors: detections.descriptors,
+          });
           if (detections.faceImages.length > 0 && img && !detect) {
             try {
               detect = true;
@@ -142,115 +141,138 @@ export default function FirstStep({ img }) {
           </span>
         </div>
       </Grid>
-
-      <img
-        src={ocrData.croppedFacePhoto}
-        alt="User face"
-        style={{
-          width: "64px",
-          height: "auto",
-          borderRadius: "10%",
-        }}
-      />
-      <br />
-      {ocrData.extractedOcrTextScore}
-      <br />
-      {ocrData.extractedOcrText}
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="firstName"
-            name="firstName"
-            label="First name"
-            fullWidth
-            autoComplete="given-name"
-            variant="standard"
+      {!ocrData.croppedFacePhoto ? (
+        <>
+          <LinearWithValueLabel lable={"Photo scanning"} color={"secondary"} />
+        </>
+      ) : (
+        <>
+          <img
+            src={ocrData.croppedFacePhoto}
+            alt="User face"
+            style={{
+              width: "64px",
+              height: "auto",
+              borderRadius: "10%",
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="lastName"
-            name="lastName"
-            label="Last name"
-            fullWidth
-            autoComplete="family-name"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            required
-            id="address1"
-            name="address1"
-            label="Address line 1"
-            fullWidth
-            autoComplete="shipping address-line1"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="address2"
-            name="address2"
-            label="Address line 2"
-            fullWidth
-            autoComplete="shipping address-line2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="city"
-            name="city"
-            label="City"
-            fullWidth
-            autoComplete="shipping address-level2"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            id="state"
-            name="state"
-            label="State/Province/Region"
-            fullWidth
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="zip"
-            name="zip"
-            label="Zip / Postal code"
-            fullWidth
-            autoComplete="shipping postal-code"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="country"
-            name="country"
-            label="Country"
-            fullWidth
-            autoComplete="shipping country"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            control={
-              <Checkbox color="secondary" name="saveAddress" value="yes" />
-            }
-            label="Use this address for payment details"
-          />
-        </Grid>
-      </Grid>
+          {ocrData.extractedOcrTextScore ? (
+            <>
+              <br />
+              {ocrData.extractedOcrTextScore}
+              <br />
+              {/* {ocrData.extractedOcrText} */}
+              <pre>{ocrData.extractedOcrText}</pre>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="firstName"
+                    name="firstName"
+                    label="First name"
+                    fullWidth
+                    autoComplete="given-name"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="lastName"
+                    name="lastName"
+                    label="Last name"
+                    fullWidth
+                    autoComplete="family-name"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    id="address1"
+                    name="address1"
+                    label="Address line 1"
+                    fullWidth
+                    autoComplete="shipping address-line1"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    id="address2"
+                    name="address2"
+                    label="Address line 2"
+                    fullWidth
+                    autoComplete="shipping address-line2"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="city"
+                    name="city"
+                    label="City"
+                    fullWidth
+                    autoComplete="shipping address-level2"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    id="state"
+                    name="state"
+                    label="State/Province/Region"
+                    fullWidth
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="zip"
+                    name="zip"
+                    label="Zip / Postal code"
+                    fullWidth
+                    autoComplete="shipping postal-code"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    id="country"
+                    name="country"
+                    label="Country"
+                    fullWidth
+                    autoComplete="shipping country"
+                    variant="standard"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        color="secondary"
+                        name="saveAddress"
+                        value="yes"
+                      />
+                    }
+                    label="Use this address for payment details"
+                  />
+                </Grid>
+              </Grid>
+            </>
+          ) : (
+            <>
+              <LinearWithValueLabel
+                lable={"Reading scanned text"}
+                color={"primary"}
+              />
+            </>
+          )}
+        </>
+      )}
     </React.Fragment>
   );
 }
