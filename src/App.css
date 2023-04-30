@@ -1,9 +1,9 @@
 .App {
   text-align: center;
-  background-color: #282c34;
+  /* background-color: #282c34;
   font-size: calc(10px + 2vmin);
   color: white;
-  height: 100vh;
+  height: 100vh; */
 }
 
 .App-logo {
@@ -55,12 +55,12 @@ body {
 }
 
 .ocrloader {
-  width: 65%;
-  height: 50%;
+  /* width: 65%;
+  height: 50%; */
   /* margin:20px; */
   outline-offset: 10px;
   position: relative;
-  position: absolute;
+  /* position: absolute; */
   /* left: 40%;
   top: 40%; */
 }
@@ -228,4 +228,23 @@ body {
   object-fit: cover;
   scale: 1.2;
   /* transform: scaleX(-1); */
+}
+
+.webcam-ring2 {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  border: 5px solid #f44336;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.webcam-ring2 video {
+  top: 55%;
+  left: 55%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scale: 1.2;
 }

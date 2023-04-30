@@ -7,6 +7,7 @@ import { FlipCameraIos } from "@material-ui/icons";
 const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
   const webcamRef = React.useRef(null);
   const [isWebcamOn, setIsWebcamOn] = useState(true);
+  const [cameraPreview, setCameraPreview] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
   const [quality, setQuality] = useState(1);
   const [facingMode, setFacingMode] = useState("user");
@@ -67,6 +68,7 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
       // Detect faces in the captured photo
       const image = webcamRef.current.video;
       const detection = await detectFaces(image);
+      setCameraPreview(true);
       if (detection.length > 0 && detection && cropedFaceDescriptor) {
         const distance = faceapi.euclideanDistance(
           detection[0].descriptor,
@@ -86,9 +88,10 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
 
   return (
     <>
+    {!cameraPreview && "Loading..."}
       <div
-        className="webcam-ring"
-        style={{ borderColor: quality < 0.6 ? "green" : "red" }}
+        className="webcam-ring2"
+        style={{ display: cameraPreview ? "" : "none", borderColor: quality < 0.6 ? "green" : "red" }}
       >
         <Webcam
           audio={false}
@@ -96,7 +99,7 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
           onPlay={handleVideoOnPlay}
           screenshotFormat="image/jpeg"
           videoConstraints={{ facingMode: facingMode }}
-          style={{
+          style={{            
             width: "100%",
             border: "solid 6px",
             //   borderColor: quality < 0.6 ? "green" : "red",
@@ -104,12 +107,13 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
           }}
         />
       </div>
-<br/>
+      <br />
       <Button
         variant="contained"
         startIcon={<FlipCameraIos />}
         onClick={handleFacingModeChange}
         color="secondary"
+        style={{ display: cameraPreview ? "" : "none" }}
       >
         {facingMode === "user" ? "FRONT" : "REAR"}
       </Button>
