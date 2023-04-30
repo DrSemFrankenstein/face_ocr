@@ -3,6 +3,7 @@ import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 import { Button, IconButton } from "@material-ui/core";
 import { FlipCameraIos } from "@material-ui/icons";
+import objectStore from "../Store/objectStore";
 
 const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
   const webcamRef = React.useRef(null);
@@ -66,6 +67,10 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
   const handleVideoOnPlay = () => {
     const id = setInterval(async () => {
       // Detect faces in the captured photo
+      if (webcamRef.current == null) {
+        clearInterval(intervalId);
+        return;
+      }
       const image = webcamRef.current.video;
       const detection = await detectFaces(image);
       setCameraPreview(true);
@@ -77,8 +82,18 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
         setQuality(distance);
         if (distance < 0.6) {
           console.log("The two faces belong to the same person: " + distance);
+          objectStore.setObject({
+            ...objectStore.getObject(),
+            validPerson: true,
+          });
+          stopWebcam();
+          clearInterval(intervalId);
         } else {
           console.log("The two faces belong to different people: " + distance);
+          objectStore.setObject({
+            ...objectStore.getObject(),
+            validPerson: false,
+          });
         }
         clearInterval(intervalId);
       }
@@ -88,10 +103,13 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
 
   return (
     <>
-    {!cameraPreview && "Loading..."}
+      {!cameraPreview && "Loading..."}
       <div
         className="webcam-ring2"
-        style={{ display: cameraPreview ? "" : "none", borderColor: quality < 0.6 ? "green" : "red" }}
+        style={{
+          display: cameraPreview ? "" : "none",
+          borderColor: quality < 0.6 ? "#1976d2" : "#f50057",
+        }}
       >
         <Webcam
           audio={false}
@@ -99,9 +117,10 @@ const FaceValidation = ({ cropedFaceDescriptor, cropedFaceImages, score }) => {
           onPlay={handleVideoOnPlay}
           screenshotFormat="image/jpeg"
           videoConstraints={{ facingMode: facingMode }}
-          style={{            
+          style={{
             width: "100%",
             border: "solid 6px",
+            transform: "scaleX(-1)",
             //   borderColor: quality < 0.6 ? "green" : "red",
             // filter: "grayscale(100%)",
           }}

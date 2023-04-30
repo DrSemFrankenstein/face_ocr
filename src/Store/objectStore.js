@@ -2,7 +2,7 @@ import { makeAutoObservable, autorun } from "mobx";
 import { createContext } from "react";
 
 class ObjectStore {
-  object = { imgFile: {} };
+  object = { imgFile: {}, detectedDescriptors:[], validPerson: false };
 
   constructor() {
     makeAutoObservable(this);
